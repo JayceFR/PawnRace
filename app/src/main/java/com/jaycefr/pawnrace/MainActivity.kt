@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,7 +51,8 @@ class MainActivity : ComponentActivity() {
         val whitePlayer = Player(Piece.WHITE)
         val blackPlayer = Player(Piece.BLACK, whitePlayer)
         whitePlayer.opponent = blackPlayer
-        var game = Game(board, whitePlayer)
+        val game = Game(board, whitePlayer)
+        val choice = mutableIntStateOf(-1)
         setContent {
             PawnRaceTheme {
                 Column(
@@ -59,108 +62,50 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    board(
-                        boxWidthPx = boxWidth,
-                        game = game,
-                        colors = listOf(
-                            Color(118,150,86),
-                            Color(238,238,210)
+                    if (choice.intValue == -1){
+                        Text(
+                            text = "Pawn Race",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = Color.White
                         )
-
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun board(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Black, Color.White), highlightColor : Color = Color.Yellow){
-    val boxWidth = with(LocalDensity.current) { boxWidthPx.toDp() }
-    val gameState = remember { mutableStateOf(game) }
-    val validPositions = remember {mutableStateOf<List<Position>>(emptyList())}
-    val validMoves = remember {mutableStateOf<List<Move>>(emptyList())}
-    if (gameState.value.over()){
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Text(
-                text = "Game OVER!! ${
-                    when {
-                        gameState.value.player.piece.getOps() == Piece.BLACK -> "BLACK"
-                        else -> "WHITE"
-                    }
-                } WON",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Red
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                // Reset game state
-                gameState.value = game.reset() // Ensure `reset` creates a new instance of the game
-                validMoves.value = emptyList()
-                validPositions.value = emptyList()
-            }) {
-                Text("Restart")
-            }
-        }
-    }
-    else {
-        Column(
-            Modifier.border(2.dp, Color(118, 150, 86, 89))
-        ){
-            for (x in 0..7) {
-                Row(
-                ){
-                    for (y in 0..7) {
-                        val position = Position("${'a' + y}${x + 1}")
-                        Box(
-                            modifier = Modifier
-                                .width(boxWidth)
-                                .height(boxWidth)
-                                .clickable {
-                                    println("Clicked on $x, $y")
-                                    val currPiece = gameState.value.board.pieceAt(position)
-                                    if (position in validPositions.value) {
-                                        val pos = validPositions.value.indexOf(position)
-                                        gameState.value.applyMove(validMoves.value[pos])
-                                        validPositions.value = emptyList()
-                                        validMoves.value = emptyList()
-                                    } else {
-                                        if (currPiece == gameState.value.player.piece) {
-                                            val moves = gameState.value.validPawnAtPosMoves(
-                                                position,
-                                                gameState.value.player.piece
-                                            )
-                                            validMoves.value = moves
-                                            validPositions.value = moves.map { it.to }
-                                        } else {
-                                            validPositions.value = emptyList()
-                                            validMoves.value = emptyList()
-                                        }
-                                    }
-                                }
-                                .background(
-                                    when {
-                                        position in validPositions.value -> highlightColor
-                                        else -> colors[((x + y) % 2)]
-                                    }
-                                ),
-                            contentAlignment = Alignment.Center,
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { choice.intValue = 1}
                         ){
-                            if (gameState.value.board.isPiece(x,y,Piece.WHITE))
-                                WhitePawn()
-                            if (gameState.value.board.isPiece(x,y,Piece.BLACK))
-                                BlackPawn()
+                            Text(text = "One Player")
+                        }
+                        Button(
+                            onClick = { choice.intValue = 0 }
+                        ){
+                            Text(text = "Two Player")
                         }
                     }
+                    else {
+                        if (choice.intValue == 1)
+                            OnePlayer(
+                                boxWidthPx = boxWidth,
+                                game = game,
+                                colors = listOf(
+                                    Color(118,150,86),
+                                    Color(238,238,210)
+                                )
+                            )
+                        else
+                            TwoPlayer(
+                                boxWidthPx = boxWidth,
+                                game = game,
+                                colors = listOf(
+                                    Color(118,150,86),
+                                    Color(238,238,210)
+                                )
+                            )
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun BlackPawn(){
