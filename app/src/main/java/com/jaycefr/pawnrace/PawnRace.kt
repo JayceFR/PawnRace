@@ -307,6 +307,14 @@ class Game(
         }
     }
 
+    fun reset() : Game{
+        val nboard = Board(File(7), File(0))
+        val nwhitePlayer = Player(Piece.WHITE)
+        val nblackPlayer = Player(Piece.BLACK, nwhitePlayer)
+        nwhitePlayer.opponent = nblackPlayer
+        return Game(nboard, nwhitePlayer)
+    }
+
 //    fun copy() : Game {
 //        return Game(board.copy(), player, moves)
 //    }
