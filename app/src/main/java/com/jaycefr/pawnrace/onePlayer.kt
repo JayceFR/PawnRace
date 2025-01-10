@@ -27,17 +27,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun OnePlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Black, Color.White), highlightColor : Color = Color.Yellow){
+fun OnePlayer(
+    boxWidthPx: Int,
+    game: Game,
+    colors: List<Color> = listOf(Color.Black, Color.White),
+    highlightColor: Color = Color.Yellow,
+    flipBoard: Boolean = true // Add this flag to control board orientation
+) {
     val boxWidth = with(LocalDensity.current) { boxWidthPx.toDp() }
     val gameState = remember { mutableStateOf(game) }
     val validPositions = remember { mutableStateOf<List<Position>>(emptyList()) }
     val validMoves = remember { mutableStateOf<List<Move>>(emptyList()) }
-    if (gameState.value.over()){
+
+    if (gameState.value.over()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Text(
                 text = "Game OVER!! ${
                     when {
@@ -58,15 +65,17 @@ fun OnePlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.
                 Text("Restart")
             }
         }
-    }
-    else {
+    } else {
         Column(
             Modifier.border(2.dp, Color(118, 150, 86, 89))
-        ){
-            for (x in 0..7) {
-                Row(
-                ){
-                    for (y in 0..7) {
+        ) {
+            // Reverse the rows if flipBoard is true
+            val rowRange = if (flipBoard) (7 downTo 0) else (0..7)
+            val colRange = if (flipBoard) (7 downTo 0) else (0..7)
+
+            for (x in rowRange) {
+                Row {
+                    for (y in colRange) {
                         val position = Position("${'a' + y}${x + 1}")
                         Box(
                             modifier = Modifier
@@ -102,10 +111,10 @@ fun OnePlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.
                                     }
                                 ),
                             contentAlignment = Alignment.Center,
-                        ){
-                            if (gameState.value.board.isPiece(x,y,Piece.WHITE))
+                        ) {
+                            if (gameState.value.board.isPiece(x, y, Piece.WHITE))
                                 WhitePawn()
-                            if (gameState.value.board.isPiece(x,y,Piece.BLACK))
+                            if (gameState.value.board.isPiece(x, y, Piece.BLACK))
                                 BlackPawn()
                         }
                     }
@@ -114,4 +123,5 @@ fun OnePlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.
         }
     }
 }
+
 
