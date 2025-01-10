@@ -40,6 +40,11 @@ class MainActivity : ComponentActivity() {
         val displayMatrix = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMatrix)
         val boxWidth : Int = (displayMatrix.widthPixels - 100) / 8
+        val board = Board(File(7), File(0))
+        val whitePlayer = Player(Piece.WHITE)
+        val blackPlayer = Player(Piece.BLACK, whitePlayer)
+        whitePlayer.opponent = blackPlayer
+        var game = Game(board, whitePlayer)
         setContent {
             PawnRaceTheme {
                 Column(
@@ -51,10 +56,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     board(
                         boxWidthPx = boxWidth,
+                        game = game,
                         colors = listOf(
                             Color(118,150,86),
                             Color(238,238,210)
                         )
+
                     )
                 }
             }
@@ -63,7 +70,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun board(boxWidthPx : Int, colors : List<Color> = listOf(Color.Black, Color.White)){
+fun board(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Black, Color.White)){
     val boxWidth = with(LocalDensity.current) { boxWidthPx.toDp() }
     Column(
         Modifier.border(2.dp, Color(118, 150, 86, 89))
@@ -78,11 +85,16 @@ fun board(boxWidthPx : Int, colors : List<Color> = listOf(Color.Black, Color.Whi
                             .height(boxWidth)
                             .clickable {
                                 println("Clicked on $x, $y")
+                                val currPiece = game.board.pieceAt(Position("${'a'+y}${x+1}"))
+                                println(game.moves(currPiece!!))
                             }
                             .background(colors[(x + y) % 2]),
                         contentAlignment = Alignment.Center,
                     ){
-                        BlackPawn()
+                        if (game.board.pieceAt(Position("${'a'+y}${x+1}")) == Piece.WHITE)
+                            WhitePawn()
+                        if (game.board.pieceAt(Position("${'a'+y}${x+1}")) == Piece.BLACK)
+                            BlackPawn()
                     }
                 }
             }
@@ -103,7 +115,8 @@ fun BlackPawn(){
 fun WhitePawn(){
     Image(
         painter = painterResource(id = R.drawable.pawnwhite),
-        contentDescription = "WhitePawn"
+        contentDescription = "WhitePawn",
+        Modifier.scale(4f)
     )
 }
 

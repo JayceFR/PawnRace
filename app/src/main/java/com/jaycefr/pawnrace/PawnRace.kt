@@ -44,9 +44,9 @@ class PawnRace {
 }
 
 // When running the command, provide an argument either W or B, this indicates your player colour
-fun main(args: Array<String>) {
-    PawnRace().playGame(args[0][0], PrintWriter(System.out, true), BufferedReader(InputStreamReader(System.`in`)))
-}
+//fun main(args: Array<String>) {
+//    PawnRace().playGame(args[0][0], PrintWriter(System.out, true), BufferedReader(InputStreamReader(System.`in`)))
+//}
 
 
 enum class Piece {
