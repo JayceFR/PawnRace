@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -70,8 +72,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun board(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Black, Color.White)){
+fun board(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Black, Color.White), highlightColor : Color = Color.Yellow){
     val boxWidth = with(LocalDensity.current) { boxWidthPx.toDp() }
+    val gameState = remember { mutableStateOf(game) }
+    val validPositions = remember {mutableStateOf<List<Position>>(emptyList())}
+    val validMoves = remember {mutableStateOf<List<Move>>(emptyList())}
     Column(
         Modifier.border(2.dp, Color(118, 150, 86, 89))
     ){
@@ -79,21 +84,44 @@ fun board(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.Blac
             Row(
             ){
                 for (y in 0..7) {
+                    val position = Position("${'a' + y}${x + 1}")
                     Box(
                         modifier = Modifier
                             .width(boxWidth)
                             .height(boxWidth)
                             .clickable {
                                 println("Clicked on $x, $y")
-                                val currPiece = game.board.pieceAt(Position("${'a'+y}${x+1}"))
-                                println(game.moves(currPiece!!))
+                                val currPiece = gameState.value.board.pieceAt(position)
+                                if (position in validPositions.value) {
+                                    val pos = validPositions.value.indexOf(position)
+                                    gameState.value.applyMove(validMoves.value[pos])
+                                    validPositions.value = emptyList()
+                                    validMoves.value = emptyList()
+                                } else {
+                                    if (currPiece == gameState.value.player.piece) {
+                                        val moves = gameState.value.validPawnAtPosMoves(
+                                            position,
+                                            gameState.value.player.piece
+                                        )
+                                        validMoves.value = moves
+                                        validPositions.value = moves.map { it.to }
+                                    } else {
+                                        validPositions.value = emptyList()
+                                        validMoves.value = emptyList()
+                                    }
+                                }
                             }
-                            .background(colors[(x + y) % 2]),
+                            .background(
+                                when {
+                                    position in validPositions.value -> highlightColor
+                                    else -> colors[((x + y) % 2)]
+                                }
+                            ),
                         contentAlignment = Alignment.Center,
                     ){
-                        if (game.board.pieceAt(Position("${'a'+y}${x+1}")) == Piece.WHITE)
+                        if (game.board.isPiece(x,y,Piece.WHITE))
                             WhitePawn()
-                        if (game.board.pieceAt(Position("${'a'+y}${x+1}")) == Piece.BLACK)
+                        if (game.board.isPiece(x,y,Piece.BLACK))
                             BlackPawn()
                     }
                 }

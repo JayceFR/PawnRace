@@ -340,6 +340,27 @@ class Game(
         return null
     }
 
+    fun validPawnAtPosMoves(pos: Position, piece: Piece) : List<Move>{
+        val delta = if (piece == Piece.BLACK) -1 else 1
+        val moveList = mutableListOf<Move>()
+        listOf(
+            moveForwardBy(pos, 1 * delta, piece),
+            moveForwardBy(pos, 2 * delta, piece)
+        ).forEach { move ->
+            move?.let { moveList.add(it) }
+        }
+        // Add diagonal moves for capture and en passant
+        listOf(
+            moveDiagonalBy(pos, false, piece, MoveType.CAPTURE),
+            moveDiagonalBy(pos, true, piece, MoveType.CAPTURE),
+            moveDiagonalBy(pos, false, piece, MoveType.EN_PASSANT),
+            moveDiagonalBy(pos, true, piece, MoveType.EN_PASSANT)
+        ).forEach { move ->
+            move?.let { moveList.add(it) }
+        }
+        return moveList.toList()
+    }
+
     fun moves(piece: Piece): List<Move> {
         val moveList = mutableListOf<Move>()
         val allPos: List<Position> = board.positionOf(piece)
