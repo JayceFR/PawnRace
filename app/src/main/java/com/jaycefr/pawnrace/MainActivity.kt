@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,8 +76,11 @@ fun board(boxWidthPx : Int, colors : List<Color> = listOf(Color.Black, Color.Whi
                         modifier = Modifier
                             .width(boxWidth)
                             .height(boxWidth)
+                            .clickable {
+                                println("Clicked on $x, $y")
+                            }
                             .background(colors[(x + y) % 2]),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ){
                         BlackPawn()
                     }
