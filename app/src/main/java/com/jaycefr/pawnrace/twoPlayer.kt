@@ -38,7 +38,7 @@ fun TwoPlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.
             Text(
                 text = "Game OVER!! ${
                     when {
-                        gameState.value.player.piece.getOps() == Piece.BLACK -> "BLACK"
+                        gameState.value.winner() == Piece.BLACK -> "BLACK"
                         else -> "WHITE"
                     }
                 } WON",
@@ -100,9 +100,9 @@ fun TwoPlayer(boxWidthPx : Int, game: Game, colors : List<Color> = listOf(Color.
                             contentAlignment = Alignment.Center,
                         ){
                             if (gameState.value.board.isPiece(x,y, Piece.WHITE))
-                                WhitePawn()
+                                WhitePawn(boxWidthPx)
                             if (gameState.value.board.isPiece(x,y, Piece.BLACK))
-                                BlackPawn()
+                                BlackPawn(boxWidthPx)
                         }
                     }
                 }

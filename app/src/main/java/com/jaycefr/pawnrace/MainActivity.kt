@@ -108,20 +108,20 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun BlackPawn(){
+fun BlackPawn(boxWidth : Int){
     Image(
         painter = painterResource(id = R.drawable.pawnblack),
         contentDescription = "BlackPawn",
-        Modifier.scale(4f)
+        Modifier.scale(boxWidth.toFloat()/20 - 2)
     )
 }
 
 @Composable
-fun WhitePawn(){
+fun WhitePawn(boxWidth: Int){
     Image(
         painter = painterResource(id = R.drawable.pawnwhite),
         contentDescription = "WhitePawn",
-        Modifier.scale(4f)
+        Modifier.scale(boxWidth.toFloat()/20 - 2)
     )
 }
 
