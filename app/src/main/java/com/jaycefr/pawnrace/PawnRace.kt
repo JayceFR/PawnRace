@@ -624,13 +624,13 @@ class Player(val piece: Piece, var opponent: Player? = null) {
 
     private val mapOfScore = mapOf(
         0 to 0,
-        1 to 1,
-        2 to 10,
-        3 to 60,
-        4 to 100,
-        5 to 150,
-        6 to 200,
-        7 to Int.MAX_VALUE
+        1 to 10,
+        2 to 50,
+        3 to 100,
+        4 to 200,
+        5 to 400,
+        6 to 800,
+        7 to 100000
     )
 
 
@@ -670,6 +670,8 @@ class Player(val piece: Piece, var opponent: Player? = null) {
             if (pos.row in 3..4) {
                 score += 20
             }
+            if (pos.row == 7)
+                score += 100000
         }
 
         for (pos in blackPieces) {
@@ -698,6 +700,9 @@ class Player(val piece: Piece, var opponent: Player? = null) {
             if (pos.row in 3..4) {
                 score -= 20
             }
+
+            if (pos.row == 0)
+                score -= 100000
         }
 
         return score
@@ -735,9 +740,9 @@ class Player(val piece: Piece, var opponent: Player? = null) {
             val availableMoves = game.moves(Piece.WHITE)
             val sortedMoves = availableMoves.sortedByDescending { move ->
                 when {
+                    move.to.row == 7 -> 8000
                     isPassedPawn(move.to, game, currPiece) -> 1000
                     move.type == MoveType.CAPTURE || move.type == MoveType.EN_PASSANT -> 800
-                    (move.to.row == 7 && move.piece == Piece.WHITE) || (move.to.row == 0 && move.piece == Piece.BLACK) -> 600
                     else -> 10
                 }
             }
@@ -759,8 +764,9 @@ class Player(val piece: Piece, var opponent: Player? = null) {
             val availableMoves = game.moves(Piece.BLACK)
             val sortedMoves = availableMoves.sortedByDescending { move ->
                 when {
+                    move.to.row == 0 -> 8000
+                    isPassedPawn(move.to, game, currPiece) -> 2000
                     move.type == MoveType.CAPTURE || move.type == MoveType.EN_PASSANT -> 1000
-                    (move.to.row == 7 && move.piece == Piece.WHITE) || (move.to.row == 0 && move.piece == Piece.BLACK) -> 800
                     else -> 10
                 }
             }
