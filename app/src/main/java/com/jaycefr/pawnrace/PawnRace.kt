@@ -758,9 +758,7 @@ class Player(val piece: Piece, var opponent: Player? = null) {
         game.transpositionTable[hash]?.let { return it }
 
         if (depth == 0 || game.over()) {
-            val eval = evaluateBoard(game)
-            game.transpositionTable[hash] = eval
-            return eval
+            return quiescenceSearch(game, alpha, beta, maximizing)
         }
 
         var currAlpha = alpha
